@@ -1,5 +1,5 @@
 {
-  "name": "Ollama Document Summarizer",
+  "name": "Ollama Document AI",
   "description": "Document reader and summarizer using Ollama local models and Python code studio",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
