@@ -75,9 +75,12 @@ Before running the application locally, you will need:
 
 ## 💡 How to Use
 
-1. **Upload Document**: Drag & drop or click to upload a PDF, Word DOCX, Markdown, or TXT file.
+1. **Upload Document**: Drag & drop or click to upload a PDF, Word DOCX, Vessel Manifest, Markdown, or TXT file.
 2. **Summarize Document**: Click the **Summarize Document** button to generate a structured summary using your local `llama3.2` model.
-3. **Ask Questions**: Type any question about the uploaded document in the input field below and press **Ask**.
+3. **Analyze Risk Profile**: Click **Analyze Risk Profile** to have the LLM automatically connect document text phrases (e.g., `"Cargo load: 34,500 kg"`) to defined formula variables (`cargo_load = 34500`), evaluate your CRUD risk rules (`cargo_load > 30000 -> +30% Risk`), and generate an actionable risk scorecard.
+4. **CRUD Risk Rules**: Click **CRUD Risk Rules** in the header to create, edit, or delete custom risk formulas and threshold conditions.
+5. **Ask Questions**: Type any question about the uploaded document in the input field below and press **Ask**.
+
 
 ---
 

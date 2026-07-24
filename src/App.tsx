@@ -8,17 +8,28 @@ import {
   Copy,
   Check,
   Download,
-  Trash2,
-  RefreshCw,
   CheckCircle2,
   AlertCircle,
-  HelpCircle,
   FolderPlus,
-  FileCheck,
+  ShieldAlert,
+  Sliders,
+  ChevronDown,
+  ChevronUp,
+  Table,
+  CheckCircle,
+  XCircle,
+  Activity,
 } from "lucide-react";
 import { parseUploadedFile } from "./utils/documentParser";
 import { SAMPLE_DOCUMENTS } from "./data/sampleDocs";
-import { DocumentFile } from "./types";
+import { DEFAULT_RISK_RULES } from "./data/defaultRiskRules";
+import { analyzeDocumentRisk } from "./utils/riskEvaluator";
+import { RiskProfileManager } from "./components/RiskProfileManager";
+import {
+  DocumentFile,
+  RiskRule,
+  DocumentRiskAnalysisResult,
+} from "./types";
 
 export default function App() {
   const [documents, setDocuments] = useState<DocumentFile[]>(SAMPLE_DOCUMENTS);
@@ -32,6 +43,11 @@ export default function App() {
   const [outputContent, setOutputContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+
+  // Risk Rules & Analysis state
+  const [riskRules, setRiskRules] = useState<RiskRule[]>(DEFAULT_RISK_RULES);
+  const [riskAnalysisResult, setRiskAnalysisResult] = useState<DocumentRiskAnalysisResult | null>(null);
+  const [showRiskManager, setShowRiskManager] = useState<boolean>(false);
 
   // Ollama status
   const [ollamaOnline, setOllamaOnline] = useState<boolean | null>(null);
@@ -110,6 +126,7 @@ export default function App() {
   const handleSummarize = async () => {
     if (!currentDoc || isLoading) return;
     setIsLoading(true);
+    setRiskAnalysisResult(null);
     setOutputTitle(`Summary: ${currentDoc.name}`);
     setOutputContent("");
 
@@ -156,13 +173,38 @@ export default function App() {
     }
   };
 
-  // 2. Handle Ask Question
+  // 2. Handle Risk Profile Formula Analysis
+  const handleAnalyzeRisk = async () => {
+    if (!currentDoc || isLoading) return;
+    setIsLoading(true);
+    setRiskAnalysisResult(null);
+    setOutputTitle(`Risk Profile Evaluation: ${currentDoc.name}`);
+    setOutputContent("");
+
+    try {
+      const result = await analyzeDocumentRisk(
+        currentDoc,
+        riskRules,
+        ollamaHost,
+        ollamaModel
+      );
+      setRiskAnalysisResult(result);
+      setOutputContent(result.aiRiskSummary);
+    } catch (err: any) {
+      setOutputContent(`Error evaluating risk profile: ${err.message || err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 3. Handle Ask Question
   const handleAskQuestion = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!question.trim() || !currentDoc || isLoading) return;
 
     const userQ = question.trim();
     setIsLoading(true);
+    setRiskAnalysisResult(null);
     setOutputTitle(`Q: ${userQ}`);
     setOutputContent("");
 
@@ -246,6 +288,18 @@ export default function App() {
           </div>
 
           <div className="flex items-center space-x-2 text-xs">
+            <button
+              onClick={() => setShowRiskManager(!showRiskManager)}
+              className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all ${
+                showRiskManager
+                  ? "bg-amber-500 text-slate-950 border-amber-400"
+                  : "bg-slate-900 border-slate-800 text-amber-400 hover:border-amber-500/50"
+              }`}
+            >
+              <Sliders className="w-3 h-3" />
+              <span>{showRiskManager ? "Hide Risk Rules" : "CRUD Risk Rules"}</span>
+            </button>
+
             <span
               className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border ${
                 ollamaOnline
@@ -266,6 +320,15 @@ export default function App() {
 
       {/* Main Single-Column Minimal Interface */}
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 space-y-6">
+        {/* CRUD Risk Rules Panel (If Toggled) */}
+        {showRiskManager && (
+          <RiskProfileManager
+            rules={riskRules}
+            onSaveRules={(updated) => setRiskRules(updated)}
+            onResetDefaultRules={() => setRiskRules(DEFAULT_RISK_RULES)}
+          />
+        )}
+
         {/* 1. TOP: Document Upload Part */}
         <div className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -282,7 +345,7 @@ export default function App() {
                 }}
                 className="text-xs text-slate-400 hover:text-amber-400 transition-colors"
               >
-                Load Sample Doc
+                Load Sample Docs
               </button>
             )}
           </div>
@@ -320,7 +383,7 @@ export default function App() {
                   <span className="font-bold text-amber-400">Click to upload document</span> or drag and drop file
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  Supports PDF, Word DOCX, Markdown, and TXT files
+                  Supports PDF, Word DOCX, Vessel Manifests, Markdown, and TXT files
                 </p>
               </div>
             )}
@@ -351,7 +414,7 @@ export default function App() {
                 >
                   {documents.map((d) => (
                     <option key={d.id} value={d.id}>
-                      {d.name.slice(0, 25)}
+                      {d.name.slice(0, 30)}
                     </option>
                   ))}
                 </select>
@@ -367,31 +430,57 @@ export default function App() {
           )}
         </div>
 
-        {/* 2. MIDDLE: Summarization Button + Question Textfield */}
+        {/* 2. MIDDLE: Action Buttons (Summarize & Risk Analysis) + Question Textfield */}
         <div className="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-sm space-y-4">
-          {/* Button for Summarization */}
-          <button
-            id="btn-summarize-doc"
-            onClick={handleSummarize}
-            disabled={isLoading || !currentDoc}
-            className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center space-x-2 shadow-md ${
-              isLoading || !currentDoc
-                ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                : "bg-amber-500 hover:bg-amber-400 text-slate-950 active:scale-[0.995]"
-            }`}
-          >
-            {isLoading && outputTitle.startsWith("Summary:") ? (
-              <>
-                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                <span>Summarizing Document...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4 fill-slate-950" />
-                <span>Summarize Document</span>
-              </>
-            )}
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Button 1: Summarize */}
+            <button
+              id="btn-summarize-doc"
+              onClick={handleSummarize}
+              disabled={isLoading || !currentDoc}
+              className={`py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center space-x-2 shadow-md ${
+                isLoading || !currentDoc
+                  ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                  : "bg-amber-500 hover:bg-amber-400 text-slate-950 active:scale-[0.995]"
+              }`}
+            >
+              {isLoading && outputTitle.startsWith("Summary:") ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  <span>Summarizing...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 fill-slate-950" />
+                  <span>Summarize Document</span>
+                </>
+              )}
+            </button>
+
+            {/* Button 2: Risk Profile Analysis */}
+            <button
+              id="btn-analyze-risk"
+              onClick={handleAnalyzeRisk}
+              disabled={isLoading || !currentDoc}
+              className={`py-3 px-4 rounded-xl font-bold text-xs transition-all flex items-center justify-center space-x-2 shadow-md border ${
+                isLoading || !currentDoc
+                  ? "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed"
+                  : "bg-slate-950 hover:bg-slate-900 text-amber-400 border-amber-500/60 active:scale-[0.995]"
+              }`}
+            >
+              {isLoading && outputTitle.startsWith("Risk Profile") ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Connecting Variables & Risk...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldAlert className="w-4 h-4 text-amber-400" />
+                  <span>Analyze Risk Profile</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="relative flex py-1 items-center">
@@ -433,7 +522,108 @@ export default function App() {
           </form>
         </div>
 
-        {/* 3. BOTTOM: Generated Output / Answer Section */}
+        {/* 3. BOTTOM: Risk Scorecard Visual Component (If Risk Analyzed) */}
+        {riskAnalysisResult && !isLoading && (
+          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-5 shadow-md space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Activity className="w-4 h-4 text-amber-500" />
+                <h3 className="text-xs font-bold text-slate-200">
+                  Risk Assessment Matrix & Extracted Variables
+                </h3>
+              </div>
+
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold font-mono ${
+                  riskAnalysisResult.riskLevel === "Critical"
+                    ? "bg-rose-950 text-rose-400 border border-rose-800"
+                    : riskAnalysisResult.riskLevel === "High"
+                    ? "bg-amber-950 text-amber-400 border border-amber-800"
+                    : riskAnalysisResult.riskLevel === "Medium"
+                    ? "bg-sky-950 text-sky-400 border border-sky-800"
+                    : "bg-emerald-950 text-emerald-400 border border-emerald-800"
+                }`}
+              >
+                Score: {riskAnalysisResult.totalRiskScore}% ({riskAnalysisResult.riskLevel.toUpperCase()} RISK)
+              </span>
+            </div>
+
+            {/* Extracted Variables Mapping Table */}
+            <div className="space-y-2">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <Table className="w-3.5 h-3.5 text-amber-400" />
+                <span>1. LLM Word-to-Variable Extraction Mapping</span>
+              </div>
+
+              <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-x-auto text-xs">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-900/80 text-[11px] text-slate-400 border-b border-slate-800 font-mono">
+                    <tr>
+                      <th className="p-2.5">Variable</th>
+                      <th className="p-2.5">Document Snippet Matched</th>
+                      <th className="p-2.5">Normalized Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    {riskAnalysisResult.extractedVariables.map((varItem, idx) => (
+                      <tr key={idx} className="hover:bg-slate-900/50">
+                        <td className="p-2.5 font-bold text-amber-400">{varItem.variableName}</td>
+                        <td className="p-2.5 text-slate-300 italic font-sans">"{varItem.rawSnippet}"</td>
+                        <td className="p-2.5 font-bold text-emerald-400">
+                          {varItem.foundValue !== null ? String(varItem.foundValue) : "N/A"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Formulations Evaluation List */}
+            <div className="space-y-2 pt-2">
+              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                <span>2. CRUD Risk Formulas Evaluation</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2">
+                {riskAnalysisResult.evaluatedRules.map((rule) => (
+                  <div
+                    key={rule.ruleId}
+                    className={`p-3 rounded-xl border flex items-start justify-between text-xs transition-colors ${
+                      rule.triggered
+                        ? "bg-amber-950/20 border-amber-800/80 text-amber-200"
+                        : "bg-slate-950 border-slate-800/80 text-slate-400 opacity-75"
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        {rule.triggered ? (
+                          <XCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                        )}
+                        <span className="font-bold text-slate-100">{rule.description}</span>
+                        <span className="font-mono text-[11px] bg-slate-900 px-2 py-0.5 rounded text-amber-300">
+                          Formula: {rule.expectedCondition}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 pl-6">
+                        Actual: <span className="font-mono font-bold text-slate-100">{rule.actualValue}</span> — {rule.message}
+                      </p>
+                    </div>
+
+                    <span className="font-mono font-bold text-xs shrink-0 pl-2">
+                      {rule.triggered ? `+${rule.riskImpactPercent}% Risk` : "Passed"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 4. BOTTOM: Generated Output / Markdown Text Output */}
         {(outputContent || isLoading) && (
           <div className="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 shadow-md space-y-3">
             <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
@@ -483,7 +673,7 @@ export default function App() {
 
       {/* Minimal Footer */}
       <footer className="border-t border-slate-900/80 py-4 text-center text-[11px] text-slate-600">
-        Ollama Local Document Reader • Privacy-First LLM Summarization
+        Ollama Local Document AI • Entity Extraction & Risk Formula Engine
       </footer>
     </div>
   );

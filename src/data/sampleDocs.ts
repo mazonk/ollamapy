@@ -2,8 +2,50 @@ import { DocumentFile } from "../types";
 
 export const SAMPLE_DOCUMENTS: DocumentFile[] = [
   {
+    id: "vessel-manifest-1",
+    name: "MV_Atlantic_Carrier_Vessel_Inspection_Manifest.txt",
+    size: 16800,
+    type: "txt",
+    wordCount: 1920,
+    createdAt: new Date().toISOString(),
+    text: `MARITIME SAFETY, CARGO & VESSEL INSPECTION MANIFEST
+Official Document ID: MAR-2026-V88912
+Issue Date: July 22, 2026
+Port of Origin: Rotterdam, Netherlands
+Destination: Port of Singapore
+
+1. GENERAL SHIP PARTICULARS
+- Vessel Name: MV Atlantic Carrier
+- IMO Number: IMO 9482710
+- Flag State Registry: Panama
+- Vessel Type: Multi-purpose Container & Heavy Cargo Vessel
+- Year Built: 2002
+- Calculated Vessel Age: 24 years
+
+2. CARGO SPECIFICATIONS & WEIGHT TONNAGE
+- Primary Commodity: Heavy Industrial Machinery & Chemical Storage Drums
+- Total Declared Cargo Load: 34,500 kg (34.5 metric tons)
+- Maximum Rated Safe Cargo Weight: 30,000 kg
+- Overweight Status: Exceeds safe threshold by 4,500 kg
+- Hazardous Goods Designation: YES - Contains Class 3 Flammable Liquid (UN 1203 Motor Spirit, 3,200 Liters)
+
+3. NAVIGATIONAL DRAFT & STABILITY
+- Measured Draft Depth: 12.8 meters
+- Maximum Port Channel Depth Allowance: 11.5 meters
+- Ballast Tank Condition: Sub-optimal balance on Port side
+
+4. CERTIFICATION & SAFETY AUDIT LOGS
+- Last Drydock Hull Inspection: May 10, 2024
+- Mandatory Inspection Overdue Status: Overdue by 52 days
+- Active Crew Manning: 14 officers and sailors
+- Minimum Safe Crew Requirement: 16 crew members
+- Onboard Fire Suppression System: Certified functional (Renewal due Nov 2026)
+- Total Marine Insurance Valuation: $18,200,000 USD`,
+  },
+  {
     id: "sample-1",
     name: "Artificial_Intelligence_Enterprise_Report_2026.txt",
+
     size: 14200,
     type: "txt",
     wordCount: 1850,
