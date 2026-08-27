@@ -2,6 +2,38 @@ import { DocumentFile } from "../types";
 
 export const SAMPLE_DOCUMENTS: DocumentFile[] = [
   {
+    id: "incident-report-theft-1",
+    name: "Police_Incident_Report_Theft_Investigation_Carol_Ave.txt",
+    size: 9400,
+    type: "txt",
+    wordCount: 850,
+    createdAt: new Date().toISOString(),
+    text: `POLICE DEPARTMENT INCIDENT & INVESTIGATION REPORT
+Case File: CR-2026-08819
+Incident Type: Residential Burglary & Grand Theft
+Date of Incident: August 14, 2026
+Reported Location (Place of Theft): 239 Carol Avenue, Springfield
+
+1. INCIDENT SUMMARY
+On August 14, 2026, officers responded to a reported residential burglary and grand theft at 239 Carol Avenue. The property is the primary residence of Lawrence Cooper. The theft occurred between 14:00 and 17:30 hours while the residence was unoccupied.
+
+2. INVOLVED INDIVIDUALS & PERSONS
+- Victim / Property Owner: Lawrence Cooper (Age 58, Resident of 239 Carol Avenue)
+- Reporting Party & Son: David Cooper (David, Age 26, son of Lawrence Cooper)
+- Investigating Officer: Detective Marcus Vance (Badge #4092, Metro Police Department)
+
+3. WITNESS STATEMENTS & KINSHIP
+David confirmed that he is the son of Lawrence Cooper. David arrived at 239 Carol Avenue at approximately 17:45 to check on the residence and discovered the rear sliding door forced open. Lawrence Cooper was contacted and confirmed that several high-value family heirlooms and electronics were missing from the master bedroom.
+
+4. STOLEN PROPERTY & VALUATION
+- Stolen Items: Vintage Gold Rolex Watch, Diamond Pendant, and Apple MacBook Pro
+- Estimated Stolen Value: $14,500 USD
+- Point of Entry: Forced rear patio glass door at 239 Carol Avenue
+
+5. CURRENT INVESTIGATIVE STATUS
+Physical evidence collected at 239 Carol Avenue (scene of theft) has been logged into evidence lockup. Detective Marcus Vance is reviewing neighborhood security camera footage.`,
+  },
+  {
     id: "vessel-manifest-1",
     name: "MV_Atlantic_Carrier_Vessel_Inspection_Manifest.txt",
     size: 16800,

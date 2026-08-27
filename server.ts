@@ -150,66 +150,6 @@ app.post("/api/gemini/summarize", async (req, res) => {
 
     const systemInstruction = `You are an expert AI Document Summarizer powered by Large Language Models.
 Your task is to analyze the user's uploaded document ("${documentName}") and produce a clear, high-quality, structured summary in ${targetLanguage}.
-MANDATORY DIRECTIVES:
-1. You MUST read the entire provided document text thoroughly and completely from start to finish.
-2. DO NOT make up things, fabricate, assume, or hallucinate entities or relationships.
-3. Be strictly precise. Only extract entities and relationships directly substantiated by explicit factual evidence in the text.
-4. Automatically assign sequential positive integer IDs starting from 1 (1, 2, 3...) for all entities and links.
-5. Map entity types to the integer entityTypeId:
-   - 1: Organization / Company / Institution
-   - 2: Location / Port / City / Country / Facility
-   - 3: Vessel / Carrier / Physical Asset
-   - 4: Cargo / Goods / Commodity / Materials
-   - 5: Regulation / Standard / Law / Policy
-   - 6: Financial / Budget / Currency / Account
-   - 7: Person / Individual / Officer / Stakeholder
-   - 8: Document / Agreement / SOW / Contract
-   - 9: Metric / Measurement / Date / Timestamp
-   - 10: Technology / System / Software / Model
-   - 11: Other
-6. Map link types to the integer linkTypeId:
-   - 1: Affiliated / Associated With
-   - 2: Operates / Manages / Employs
-   - 3: Carries / Transports / Contains
-   - 4: Located In / Bound For / Route
-   - 5: Regulated By / Subject To
-   - 6: Underwrites / Transacts / Funds
-   - 7: Measures / Restricts / Specifies
-   - 8: Party To / Signatory
-   - 9: Uses / Implements
-7. Each link must have:
-   - "id": sequential integer (1, 2, 3...)
-   - "entityId1": integer referencing entities[].id
-   - "linkTypeId": integer linkTypeId
-   - "entityId2": integer referencing entities[].id
-   - "strength": float between 0.1 and 1.0 (confidence or connection weight)
-   - "source": string citation or document name indicating where in the document this connection is verified.
-
-OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
-{
-  "entities": [
-    {
-      "id": 1,
-      "name": "Skyler",
-      "entityTypeId": 7
-    },
-    {
-      "id": 2,
-      "name": "Jamie",
-      "entityTypeId": 7
-    }
-  ],
-  "links": [
-    {
-      "id": 1,
-      "entityId1": 1,
-      "linkTypeId": 1,
-      "entityId2": 2,
-      "strength": 0.8,
-      "source": "${documentName}"
-    }
-  ]
-}
 
 Required Output Structure in JSON format:
 {
@@ -230,7 +170,7 @@ Document Text:
 ${text.slice(0, 80000)} ${text.length > 80000 ? "\n\n[Text truncated for processing length limit]" : ""}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-3.7-flash",
       contents: userPrompt,
       config: {
         systemInstruction,
@@ -258,12 +198,170 @@ ${text.slice(0, 80000)} ${text.length > 80000 ? "\n\n[Text truncated for process
       wordCountOriginal: text.trim().split(/\s+/).length,
       wordCountSummary: (parsed.summary || "").trim().split(/\s+/).length,
       chunkCount: Math.ceil(text.length / (chunkSize * 4)),
-      modelUsed: "gemini-3.6-flash",
+      modelUsed: "gemini-3.7-flash",
       providerUsed: "gemini",
     });
   } catch (err: any) {
     console.error("Gemini summarize error:", err);
     res.status(500).json({ error: err.message || "Failed to generate summary with Gemini." });
+  }
+});
+
+// 4b. AI Agent Entity & Link Extraction Endpoint (Strict Schema JSON Export)
+app.post("/api/entities/extract", async (req, res) => {
+  try {
+    const { text, documentName = "Document", documentId = "doc-1" } = req.body;
+
+    if (!text || typeof text !== "string" || text.trim().length === 0) {
+      return res.status(400).json({ error: "Document text is required." });
+    }
+
+    const ai = getGeminiClient();
+
+    const systemInstruction = `You are a precision AI Document Entity & Relationship Knowledge Extraction Engine.
+MANDATORY DIRECTIVES:
+1. You MUST read the entire provided document text thoroughly and completely from start to finish.
+2. DO NOT make up things, fabricate, assume, or hallucinate entities or relationships.
+3. Be strictly precise. Only extract real-world entities directly substantiated by explicit factual evidence in the text.
+4. CRITICAL: DO NOT treat the document or report itself as an entity. NEVER output "Report", "Document", "File", "Incident Report", or the document title as an entity. Extract only granular, real-world named entities: individual people (e.g., "David", "Lawrence Cooper"), specific addresses/locations (e.g., "239 Carol Avenue"), specific incidents (e.g., "Theft Incident"), stolen items/assets, organizations, etc.
+5. Automatically assign sequential positive integer IDs starting from 1 (1, 2, 3...) for all entities and links.
+6. Map entity types to the integer entityTypeId:
+   - 1: Organization / Company / Institution / Police Dept
+   - 2: Location / Address / Facility (e.g. "239 Carol Avenue")
+   - 3: Asset / Vehicle / Vessel / Property
+   - 4: Item / Stolen Goods / Commodity / Cargo
+   - 5: Regulation / Standard / Law / Charge
+   - 6: Financial / Valuation / Loss / Currency
+   - 7: Person / Individual (e.g. "David", "Lawrence Cooper")
+   - 8: Event / Incident / Crime (e.g. "Theft Incident", "Burglary")
+   - 9: Metric / Measurement / Date / Timestamp
+   - 10: Technology / System / ID / Badge Number
+   - 11: Other
+7. Map link types to the integer linkTypeId:
+   - 1: Affiliated / Associated With
+   - 2: Familial / Kinship (e.g. "Father - Son" between David and Lawrence Cooper)
+   - 3: Incident Location (e.g. "Place of Theft" connecting Theft to 239 Carol Avenue)
+   - 4: Located At / Resident Of / Bound For (e.g. Lawrence Cooper resident at 239 Carol Avenue)
+   - 5: Owner / Victim / Possessor Of
+   - 6: Suspect / Accused / Perpetrator
+   - 7: Operates / Manages / Employs
+   - 8: Carries / Contains / Holds (e.g. Theft contains Stolen Items)
+   - 9: Regulated By / Subject To / Charged With
+   - 10: Measures / Quantifies / Valuation
+8. Each link must have:
+   - "id": sequential integer (1, 2, 3...)
+   - "entityId1": integer referencing entities[].id
+   - "linkTypeId": integer linkTypeId
+   - "entityId2": integer referencing entities[].id
+   - "strength": float between 0.1 and 1.0 (confidence or connection weight)
+   - "source": string citation or document name indicating where in the document this connection is verified.
+
+OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
+{
+  "entities": [
+    {
+      "id": 1,
+      "name": "Lawrence Cooper",
+      "entityTypeId": 7
+    },
+    {
+      "id": 2,
+      "name": "David",
+      "entityTypeId": 7
+    },
+    {
+      "id": 3,
+      "name": "239 Carol Avenue",
+      "entityTypeId": 2
+    },
+    {
+      "id": 4,
+      "name": "Theft Incident",
+      "entityTypeId": 8
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "entityId1": 2,
+      "linkTypeId": 2,
+      "entityId2": 1,
+      "strength": 0.95,
+      "source": "${documentName}"
+    },
+    {
+      "id": 2,
+      "entityId1": 4,
+      "linkTypeId": 3,
+      "entityId2": 3,
+      "strength": 0.95,
+      "source": "${documentName}"
+    }
+  ]
+}`;
+
+    const userPrompt = `Document Source: "${documentName}"
+Full Document Text:
+${text.slice(0, 100000)}
+
+Read the entire document thoroughly without making up any details. Extract all entities and links into the exact requested JSON format.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.7-flash",
+      contents: userPrompt,
+      config: {
+        systemInstruction,
+        temperature: 0.1,
+        responseMimeType: "application/json",
+      },
+    });
+
+    const jsonText = response.text || "{}";
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch {
+      const match = jsonText.match(/\{[\s\S]*\}/);
+      if (match) {
+        parsed = JSON.parse(match[0]);
+      }
+    }
+
+    const rawEntities = Array.isArray(parsed.entities) ? parsed.entities : [];
+    const rawLinks = Array.isArray(parsed.links) ? parsed.links : [];
+
+    // Ensure IDs are strictly clean sequential integers
+    const entities = rawEntities.map((e: any, idx: number) => ({
+      id: typeof e.id === "number" && !isNaN(e.id) ? e.id : idx + 1,
+      name: String(e.name || `Entity ${idx + 1}`).trim(),
+      entityTypeId: typeof e.entityTypeId === "number" ? e.entityTypeId : 11,
+    }));
+
+    const validEntityIds = new Set(entities.map((e: any) => e.id));
+
+    const links = rawLinks.map((l: any, idx: number) => {
+      const e1 = typeof l.entityId1 === "number" && validEntityIds.has(l.entityId1) ? l.entityId1 : (entities[0]?.id || 1);
+      const e2 = typeof l.entityId2 === "number" && validEntityIds.has(l.entityId2) ? l.entityId2 : (entities[1]?.id || entities[0]?.id || 1);
+      return {
+        id: typeof l.id === "number" && !isNaN(l.id) ? l.id : idx + 1,
+        entityId1: e1,
+        linkTypeId: typeof l.linkTypeId === "number" ? l.linkTypeId : 1,
+        entityId2: e2,
+        strength: typeof l.strength === "number" ? Math.min(1.0, Math.max(0.1, l.strength)) : 0.8,
+        source: String(l.source || documentName),
+      };
+    });
+
+    res.json({
+      entities,
+      links,
+      documentId,
+      documentName,
+      extractedAt: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    console.error("Entity extraction error:", err);
+    res.status(500).json({ error: err.message || "Failed to extract entities and links." });
   }
 });
 
