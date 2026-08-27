@@ -150,6 +150,66 @@ app.post("/api/gemini/summarize", async (req, res) => {
 
     const systemInstruction = `You are an expert AI Document Summarizer powered by Large Language Models.
 Your task is to analyze the user's uploaded document ("${documentName}") and produce a clear, high-quality, structured summary in ${targetLanguage}.
+MANDATORY DIRECTIVES:
+1. You MUST read the entire provided document text thoroughly and completely from start to finish.
+2. DO NOT make up things, fabricate, assume, or hallucinate entities or relationships.
+3. Be strictly precise. Only extract entities and relationships directly substantiated by explicit factual evidence in the text.
+4. Automatically assign sequential positive integer IDs starting from 1 (1, 2, 3...) for all entities and links.
+5. Map entity types to the integer entityTypeId:
+   - 1: Organization / Company / Institution
+   - 2: Location / Port / City / Country / Facility
+   - 3: Vessel / Carrier / Physical Asset
+   - 4: Cargo / Goods / Commodity / Materials
+   - 5: Regulation / Standard / Law / Policy
+   - 6: Financial / Budget / Currency / Account
+   - 7: Person / Individual / Officer / Stakeholder
+   - 8: Document / Agreement / SOW / Contract
+   - 9: Metric / Measurement / Date / Timestamp
+   - 10: Technology / System / Software / Model
+   - 11: Other
+6. Map link types to the integer linkTypeId:
+   - 1: Affiliated / Associated With
+   - 2: Operates / Manages / Employs
+   - 3: Carries / Transports / Contains
+   - 4: Located In / Bound For / Route
+   - 5: Regulated By / Subject To
+   - 6: Underwrites / Transacts / Funds
+   - 7: Measures / Restricts / Specifies
+   - 8: Party To / Signatory
+   - 9: Uses / Implements
+7. Each link must have:
+   - "id": sequential integer (1, 2, 3...)
+   - "entityId1": integer referencing entities[].id
+   - "linkTypeId": integer linkTypeId
+   - "entityId2": integer referencing entities[].id
+   - "strength": float between 0.1 and 1.0 (confidence or connection weight)
+   - "source": string citation or document name indicating where in the document this connection is verified.
+
+OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
+{
+  "entities": [
+    {
+      "id": 1,
+      "name": "Skyler",
+      "entityTypeId": 7
+    },
+    {
+      "id": 2,
+      "name": "Jamie",
+      "entityTypeId": 7
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "entityId1": 1,
+      "linkTypeId": 1,
+      "entityId2": 2,
+      "strength": 0.8,
+      "source": "${documentName}"
+    }
+  ]
+}
 
 Required Output Structure in JSON format:
 {
