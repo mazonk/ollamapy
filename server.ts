@@ -250,6 +250,19 @@ MANDATORY DIRECTIVES:
    - "strength": float between 0.1 and 1.0 (confidence or connection weight)
    - "source": string citation or document name indicating where in the document this connection is verified.
 
+9. At the end of the JSON object, directly after links, include:
+   - "entityTypes": list of entity types referenced in this case starting with {"id": -1, "name": "semantic_group"} followed by the entity types present in the entities array (e.g. {"id": 7, "name": "person"}, {"id": 10, "name": "address"}, {"id": 2, "name": "company"})
+   - "linkTypes": list of link types referenced in this case starting with {"id": -1, "name": "semantic_link"} followed by the link types present in the links array (e.g. {"id": 1, "name": "parent-child"}, {"id": 27, "name": "landlord-tenant"})
+   - "attributes": array of granular attributes extracted for the entities in the case:
+     {
+       "id": integer sequential,
+       "entityId": integer referencing entities[].id,
+       "name": attribute name (e.g. "Address", "Alias", "Phone", "Car", "Public figure", "Valuation", "Role", "Note"),
+       "value": factual attribute value from document,
+       "author": "AdamLorincz",
+       "date": ISO-8601 timestamp (e.g. "2023-06-23T15:00:28.708")
+     }
+
 OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
 {
   "entities": [
@@ -266,30 +279,128 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
     {
       "id": 3,
       "name": "239 Carol Avenue",
-      "entityTypeId": 2
+      "entityTypeId": 10
     },
     {
       "id": 4,
       "name": "Theft Incident",
-      "entityTypeId": 8
+      "entityTypeId": 4
     }
   ],
   "links": [
     {
       "id": 1,
       "entityId1": 2,
-      "linkTypeId": 2,
+      "linkTypeId": 1,
       "entityId2": 1,
       "strength": 0.95,
       "source": "${documentName}"
     },
     {
       "id": 2,
-      "entityId1": 4,
-      "linkTypeId": 3,
+      "entityId1": 1,
+      "linkTypeId": 27,
       "entityId2": 3,
       "strength": 0.95,
       "source": "${documentName}"
+    }
+  ],
+  "entityTypes": [
+    {
+      "id": -1,
+      "name": "semantic_group"
+    },
+    {
+      "id": 7,
+      "name": "person"
+    },
+    {
+      "id": 10,
+      "name": "address"
+    },
+    {
+      "id": 4,
+      "name": "event"
+    }
+  ],
+  "linkTypes": [
+    {
+      "id": -1,
+      "name": "semantic_link"
+    },
+    {
+      "id": 1,
+      "name": "parent-child"
+    },
+    {
+      "id": 27,
+      "name": "landlord-tenant"
+    }
+  ],
+  "attributes": [
+    {
+      "id": 7,
+      "entityId": 1,
+      "name": "Address",
+      "value": "239 Carol Avenue",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T14:59:55.12"
+    },
+    {
+      "id": 8,
+      "entityId": 1,
+      "name": "Alias",
+      "value": "Martin",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:00:28.708"
+    },
+    {
+      "id": 9,
+      "entityId": 2,
+      "name": "Address",
+      "value": "239 Carol Avenue",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:01:14.971"
+    },
+    {
+      "id": 10,
+      "entityId": 2,
+      "name": "Phone",
+      "value": "+45 52 70 90 06",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:01:37.47"
+    },
+    {
+      "id": 11,
+      "entityId": 2,
+      "name": "Public figure",
+      "value": "This entity is a public figure",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:02:18.746"
+    },
+    {
+      "id": 12,
+      "entityId": 2,
+      "name": "Car",
+      "value": "Toyota",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:02:41.663"
+    },
+    {
+      "id": 13,
+      "entityId": 1,
+      "name": "Car",
+      "value": "Honda",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:02:59.34"
+    },
+    {
+      "id": 14,
+      "entityId": 1,
+      "name": "Phone",
+      "value": "+45 52 70 90 50",
+      "author": "AdamLorincz",
+      "date": "2023-06-23T15:03:11.869"
     }
   ]
 }`;
@@ -346,9 +457,58 @@ Read the entire document thoroughly without making up any details. Extract all e
       };
     });
 
+    const rawEntityTypes = Array.isArray(parsed.entityTypes) ? parsed.entityTypes : [];
+    const rawLinkTypes = Array.isArray(parsed.linkTypes) ? parsed.linkTypes : [];
+    const rawAttributes = Array.isArray(parsed.attributes) ? parsed.attributes : [];
+
+    // Ensure entityTypes always includes id -1 semantic_group + active types
+    const entityTypesMap = new Map<number, string>();
+    entityTypesMap.set(-1, "semantic_group");
+    rawEntityTypes.forEach((t: any) => {
+      if (typeof t.id === "number" && t.name) {
+        entityTypesMap.set(t.id, String(t.name).toLowerCase());
+      }
+    });
+    // Add any referenced entityTypeId not yet in map
+    entities.forEach((e: any) => {
+      if (!entityTypesMap.has(e.entityTypeId)) {
+        entityTypesMap.set(e.entityTypeId, `type_${e.entityTypeId}`);
+      }
+    });
+    const entityTypes = Array.from(entityTypesMap.entries()).map(([id, name]) => ({ id, name }));
+
+    // Ensure linkTypes always includes id -1 semantic_link + active types
+    const linkTypesMap = new Map<number, string>();
+    linkTypesMap.set(-1, "semantic_link");
+    rawLinkTypes.forEach((t: any) => {
+      if (typeof t.id === "number" && t.name) {
+        linkTypesMap.set(t.id, String(t.name).toLowerCase());
+      }
+    });
+    // Add any referenced linkTypeId not yet in map
+    links.forEach((l: any) => {
+      if (!linkTypesMap.has(l.linkTypeId)) {
+        linkTypesMap.set(l.linkTypeId, `link_${l.linkTypeId}`);
+      }
+    });
+    const linkTypes = Array.from(linkTypesMap.entries()).map(([id, name]) => ({ id, name }));
+
+    // Ensure attributes have valid sequential IDs and refer to valid entities
+    const attributes = rawAttributes.map((a: any, idx: number) => ({
+      id: typeof a.id === "number" && !isNaN(a.id) ? a.id : idx + 1,
+      entityId: typeof a.entityId === "number" && validEntityIds.has(a.entityId) ? a.entityId : (entities[0]?.id || 1),
+      name: String(a.name || "Attribute").trim(),
+      value: String(a.value || "").trim(),
+      author: String(a.author || "AdamLorincz"),
+      date: String(a.date || new Date().toISOString()),
+    }));
+
     res.json({
       entities,
       links,
+      entityTypes,
+      linkTypes,
+      attributes,
       documentId,
       documentName,
       extractedAt: new Date().toISOString(),

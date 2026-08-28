@@ -128,9 +128,31 @@ export interface StructuredLink {
   source: string;
 }
 
+export interface EntityTypeItem {
+  id: number;
+  name: string;
+}
+
+export interface LinkTypeItem {
+  id: number;
+  name: string;
+}
+
+export interface StructuredAttribute {
+  id: number;
+  entityId: number;
+  name: string;
+  value: string;
+  author: string;
+  date: string;
+}
+
 export interface DocumentEntitiesExportJSON {
   entities: StructuredEntity[];
   links: StructuredLink[];
+  entityTypes?: EntityTypeItem[];
+  linkTypes?: LinkTypeItem[];
+  attributes?: StructuredAttribute[];
 }
 
 export interface EntityTypeDefinition {

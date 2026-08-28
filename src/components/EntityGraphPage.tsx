@@ -4,9 +4,11 @@ import {
   DocumentEntitiesExportJSON,
   StructuredEntity,
   StructuredLink,
+  StructuredAttribute,
   ENTITY_TYPE_DEFINITIONS,
   LINK_TYPE_DEFINITIONS,
 } from "../types";
+import { buildCaseEntityTypes, buildCaseLinkTypes } from "../utils/entityExtractor";
 import {
   FileCode,
   Download,
@@ -23,6 +25,7 @@ import {
   AlertCircle,
   HelpCircle,
   Sparkles,
+  Tag,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -46,7 +49,7 @@ export function EntityGraphPage({
   ollamaModel,
   ollamaOnline,
 }: EntityGraphPageProps) {
-  const [activeTab, setActiveTab] = useState<"json" | "entities" | "links" | "schema">("json");
+  const [activeTab, setActiveTab] = useState<"json" | "entities" | "links" | "attributes" | "schema">("json");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [showLegend, setShowLegend] = useState<boolean>(false);
@@ -68,6 +71,19 @@ export function EntityGraphPage({
   const entities = exportData?.entities || [];
   const links = exportData?.links || [];
 
+  // Entity Types: start with id -1 semantic_group, then all entity types in this case
+  const entityTypes = exportData?.entityTypes && exportData.entityTypes.length > 0
+    ? exportData.entityTypes
+    : buildCaseEntityTypes(entities);
+
+  // Link Types: start with id -1 semantic_link, then all link types in this case
+  const linkTypes = exportData?.linkTypes && exportData.linkTypes.length > 0
+    ? exportData.linkTypes
+    : buildCaseLinkTypes(links);
+
+  // Attributes: case attributes
+  const attributes: StructuredAttribute[] = exportData?.attributes || [];
+
   // Construct exact output JSON string
   const jsonPayload = {
     entities: entities.map((e) => ({
@@ -82,6 +98,22 @@ export function EntityGraphPage({
       entityId2: l.entityId2,
       strength: Number(l.strength.toFixed(2)),
       source: l.source,
+    })),
+    entityTypes: entityTypes.map((et) => ({
+      id: et.id,
+      name: et.name,
+    })),
+    linkTypes: linkTypes.map((lt) => ({
+      id: lt.id,
+      name: lt.name,
+    })),
+    attributes: attributes.map((a) => ({
+      id: a.id,
+      entityId: a.entityId,
+      name: a.name,
+      value: a.value,
+      author: a.author,
+      date: a.date,
     })),
   };
 
@@ -134,6 +166,19 @@ export function EntityGraphPage({
     );
   });
 
+  const filteredAttributes = attributes.filter((a) => {
+    const entName = getEntityName(a.entityId).toLowerCase();
+    const q = searchQuery.toLowerCase();
+    return (
+      a.name.toLowerCase().includes(q) ||
+      a.value.toLowerCase().includes(q) ||
+      a.author.toLowerCase().includes(q) ||
+      entName.includes(q) ||
+      String(a.id).includes(q) ||
+      String(a.entityId).includes(q)
+    );
+  });
+
   return (
     <div className="space-y-6">
       {/* Top Banner & Control Bar */}
@@ -152,7 +197,7 @@ export function EntityGraphPage({
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Ollama scans the entire document, strictly extracting verified factual entities and links with auto-assigned IDs into JSON.
+              Ollama scans the entire document, strictly extracting verified factual entities, links, case entityTypes, linkTypes, and attributes into JSON.
             </p>
           </div>
 
@@ -216,16 +261,21 @@ export function EntityGraphPage({
               <span className="text-slate-400">Links:</span>
               <span className="font-bold text-cyan-400">{links.length}</span>
             </div>
+
+            <div className="flex items-center space-x-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+              <span className="text-slate-400">Attrs:</span>
+              <span className="font-bold text-emerald-400">{attributes.length}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Tabs & Search */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+        <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab("json")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
               activeTab === "json"
                 ? "bg-amber-500 text-slate-950 font-bold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -237,31 +287,43 @@ export function EntityGraphPage({
 
           <button
             onClick={() => setActiveTab("entities")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
               activeTab === "entities"
                 ? "bg-amber-500 text-slate-950 font-bold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
           >
             <Table className="w-3.5 h-3.5" />
-            <span>Entities Table ({entities.length})</span>
+            <span>Entities ({entities.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab("links")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
               activeTab === "links"
                 ? "bg-amber-500 text-slate-950 font-bold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span>Links Table ({links.length})</span>
+            <span>Links ({links.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("attributes")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
+              activeTab === "attributes"
+                ? "bg-emerald-500 text-slate-950 font-bold"
+                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+            }`}
+          >
+            <Tag className="w-3.5 h-3.5" />
+            <span>Attributes ({attributes.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab("schema")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 whitespace-nowrap transition-colors ${
               activeTab === "schema"
                 ? "bg-cyan-500 text-slate-950 font-bold"
                 : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
@@ -497,7 +559,79 @@ export function EntityGraphPage({
         </div>
       )}
 
-      {/* TAB 4: SCHEMA & TYPE DEFINITION REFERENCE */}
+      {/* TAB 4: ATTRIBUTES TABLE */}
+      {activeTab === "attributes" && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Tag className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-bold text-slate-200">
+                Extracted Attributes ({filteredAttributes.length})
+              </h3>
+            </div>
+            <span className="text-[11px] font-mono text-slate-400">
+              Structured entity property facts
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-mono">
+              <thead>
+                <tr className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider">
+                  <th className="p-3 w-16 text-center">ID</th>
+                  <th className="p-3 w-48">Entity (entityId)</th>
+                  <th className="p-3 w-36">Name</th>
+                  <th className="p-3">Value</th>
+                  <th className="p-3 w-36">Author</th>
+                  <th className="p-3 w-48">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-[12px]">
+                {filteredAttributes.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-8 text-center text-slate-500 font-sans">
+                      No attributes found matching "{searchQuery}"
+                    </td>
+                  </tr>
+                ) : (
+                  filteredAttributes.map((attr) => {
+                    const entName = getEntityName(attr.entityId);
+                    return (
+                      <tr key={attr.id} className="hover:bg-slate-800/40 transition-colors">
+                        <td className="p-3 text-center font-bold text-emerald-400 bg-slate-950/40">
+                          {attr.id}
+                        </td>
+                        <td className="p-3 font-sans">
+                          <div className="flex items-center space-x-1.5">
+                            <span className="px-1.5 py-0.2 bg-slate-950 text-amber-400 rounded font-mono text-[11px] border border-slate-800">
+                              #{attr.entityId}
+                            </span>
+                            <span className="font-semibold text-slate-200">{entName}</span>
+                          </div>
+                        </td>
+                        <td className="p-3 font-semibold text-slate-200">
+                          {attr.name}
+                        </td>
+                        <td className="p-3 text-emerald-300 font-medium font-sans">
+                          {attr.value}
+                        </td>
+                        <td className="p-3 text-slate-400">
+                          {attr.author}
+                        </td>
+                        <td className="p-3 text-slate-500 text-[11px]">
+                          {attr.date}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: SCHEMA & TYPE DEFINITION REFERENCE */}
       {activeTab === "schema" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Entity Types Reference */}
