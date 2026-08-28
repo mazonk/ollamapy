@@ -226,28 +226,22 @@ MANDATORY DIRECTIVES:
 4. CRITICAL: DO NOT treat the document or report itself as an entity. NEVER output "Report", "Document", "File", "Incident Report", or the document title as an entity. Extract only granular, real-world named entities: individual people (e.g., "David", "Lawrence Cooper"), specific addresses/locations (e.g., "239 Carol Avenue"), specific incidents (e.g., "Theft Incident"), stolen items/assets, organizations, etc.
 5. Automatically assign sequential positive integer IDs starting from 1 (1, 2, 3...) for all entities and links.
 6. Map entity types to the integer entityTypeId:
-   - 1: Organization / Company / Institution / Police Dept
-   - 2: Location / Address / Facility (e.g. "239 Carol Avenue")
-   - 3: Asset / Vehicle / Vessel / Property
-   - 4: Item / Stolen Goods / Commodity / Cargo
-   - 5: Regulation / Standard / Law / Charge
-   - 6: Financial / Valuation / Loss / Currency
-   - 7: Person / Individual (e.g. "David", "Lawrence Cooper")
-   - 8: Event / Incident / Crime (e.g. "Theft Incident", "Burglary")
-   - 9: Metric / Measurement / Date / Timestamp
-   - 10: Technology / System / ID / Badge Number
-   - 11: Other
+   1: House, 2: Company, 3: Female, 4: Event, 5: Gang, 6: Location, 7: Person, 8: Phone, 9: Passport, 10: Address,
+   11: Bank Account, 12: Bank, 13: Building, 14: Car, 15: City, 16: Country, 17: Convicted Person (Currently), 18: Convicted Person (Previously), 19: Corporate Business Organization, 20: Credit Card,
+   21: Criminal Case, 22: Document, 23: Chemistry, 24: Narcotics, 25: Drug Lab, 26: Email, 27: Work email, 28: Events, 29: Flight, 30: Gun,
+   31: House, 32: IP Address, 33: Male, 34: Association, 35: Meeting, 36: Modus Operandi, 37: Money Transfer, 38: Money Laundering, 39: Motorcycle, 40: NGO,
+   41: Organized Crime Group, 42: Passport, 43: Phone, 44: Plane, 45: Region, 46: Ship, 47: Town, 48: Train, 49: Twitter Hashtag, 50: Twitter Username,
+   51: Village, 52: Location Pin, 53: Finance
 7. Map link types to the integer linkTypeId:
-   - 1: Affiliated / Associated With
-   - 2: Familial / Kinship (e.g. "Father - Son" between David and Lawrence Cooper)
-   - 3: Incident Location (e.g. "Place of Theft" connecting Theft to 239 Carol Avenue)
-   - 4: Located At / Resident Of / Bound For (e.g. Lawrence Cooper resident at 239 Carol Avenue)
-   - 5: Owner / Victim / Possessor Of
-   - 6: Suspect / Accused / Perpetrator
-   - 7: Operates / Manages / Employs
-   - 8: Carries / Contains / Holds (e.g. Theft contains Stolen Items)
-   - 9: Regulated By / Subject To / Charged With
-   - 10: Measures / Quantifies / Valuation
+   1: Parent-Child, 2: Sibling, 3: Spouse/partner, 4: Grandparent-grandchild, 5: Friend, 6: Colleague, 7: Boss-employee, 8: Coach-player, 9: Doctor-patient, 10: Business partners,
+   11: Roommates, 12: In-laws, 13: Employer-contractor, 14: Drug supplier, 15: Informant, 16: Accomplice, 17: Witness, 18: Victim, 19: Suspect, 20: Co-defendant,
+   21: Attorney-client, 22: Guardian-ward, 23: Bail bondsman-client, 24: Probation officer-client, 25: Foster parent-child, 26: Caretaker-dependent, 27: Landlord-tenant, 28: Step-parent, 29: Step-sibling, 30: Step-child,
+   31: Co-conspirator, 32: Ex-spouse, 33: Mentor-mentee, 34: Therapist-client, 35: Protected source, 36: Handler-asset, 37: Political ally, 38: Political opponent, 39: Undercover agent, 40: Surveillance target,
+   41: Emergency contact, 42: Neighbor, 43: Former colleague, 44: Former boss, 45: Former employee, 46: Rival gang member, 47: Co-defendant's family, 48: Key witness, 49: Confidential informant, 50: Legal guardian,
+   51: Adoptive parent, 52: Adoptive child, 53: Foster sibling, 54: Ex-roommate, 55: Beneficiary, 56: Trustee, 57: Power of attorney, 58: Executor of estate, 59: Parole officer, 60: Community service supervisor,
+   61: Military superior, 62: Military subordinate, 63: Gang leader, 64: Gang recruit, 65: Union representative, 66: Union member, 67: Arbitrator, 68: Mediator, 69: Crisis negotiator, 70: Hostage,
+   71: Kidnapper, 72: Smuggler, 73: Human trafficker, 74: Organized crime member, 75: Counterfeit goods dealer, 76: Illegal arms dealer, 77: Intellectual property thief, 78: Cybercriminal, 79: Hacker, 80: Identity thief,
+   81: Counter-surveillance operator, 82: Escape driver, 83: Money launderer
 8. Each link must have:
    - "id": sequential integer (1, 2, 3...)
    - "entityId1": integer referencing entities[].id
