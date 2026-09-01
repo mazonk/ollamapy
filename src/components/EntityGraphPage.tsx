@@ -53,6 +53,7 @@ export function EntityGraphPage({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
   const [showLegend, setShowLegend] = useState<boolean>(false);
+  const [includeAttributes, setIncludeAttributes] = useState<boolean>(true);
 
   if (!document) {
     return (
@@ -85,7 +86,7 @@ export function EntityGraphPage({
   const attributes: StructuredAttribute[] = exportData?.attributes || [];
 
   // Construct exact output JSON string
-  const jsonPayload = {
+  const jsonPayload: Record<string, any> = {
     entities: entities.map((e) => ({
       id: e.id,
       name: e.name,
@@ -101,21 +102,24 @@ export function EntityGraphPage({
     })),
     entityTypes: entityTypes.map((et) => ({
       id: et.id,
-      name: et.name,
+      name: et.name.toLowerCase(),
     })),
     linkTypes: linkTypes.map((lt) => ({
       id: lt.id,
-      name: lt.name,
+      name: lt.name.toLowerCase(),
     })),
-    attributes: attributes.map((a) => ({
+  };
+
+  if (includeAttributes && attributes.length > 0) {
+    jsonPayload.attributes = attributes.map((a) => ({
       id: a.id,
       entityId: a.entityId,
       name: a.name,
       value: a.value,
       author: a.author,
       date: a.date,
-    })),
-  };
+    }));
+  }
 
   const formattedJsonString = JSON.stringify(jsonPayload, null, 2);
 
@@ -351,7 +355,7 @@ export function EntityGraphPage({
       {/* TAB 1: JSON VIEWER */}
       {activeTab === "json" && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
             <div className="flex items-center space-x-2">
               <FileCode className="w-4 h-4 text-amber-500" />
               <h3 className="text-xs font-bold text-slate-200">
@@ -359,7 +363,19 @@ export function EntityGraphPage({
               </h3>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
+              {/* Optional Attributes Toggle */}
+              <label className="flex items-center space-x-2 text-[11px] text-slate-300 cursor-pointer bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 hover:border-slate-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={includeAttributes}
+                  onChange={(e) => setIncludeAttributes(e.target.checked)}
+                  className="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-900"
+                />
+                <span>Include attributes</span>
+                <span className="text-[10px] text-slate-500 font-mono">(optional)</span>
+              </label>
+
               <button
                 onClick={handleCopyJSON}
                 className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-mono flex items-center space-x-1 border border-slate-700 transition-colors"

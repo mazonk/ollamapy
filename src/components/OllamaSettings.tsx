@@ -115,12 +115,26 @@ export const OllamaSettings: React.FC<OllamaSettingsProps> = ({
               type="text"
               value={host}
               onChange={(e) => setHost(e.target.value)}
-              placeholder="http://localhost:11434"
+              placeholder="http://localhost:4000"
               className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"
             />
-            <p className="text-[11px] text-slate-500 mt-1">
-              Default is <code className="text-amber-400/90 font-mono">http://localhost:11434</code>
-            </p>
+            <div className="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-400">
+              <span>Quick switch:</span>
+              <button
+                type="button"
+                onClick={() => setHost("http://localhost:4000")}
+                className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded font-mono text-[10px] transition-colors"
+              >
+                http://localhost:4000
+              </button>
+              <button
+                type="button"
+                onClick={() => setHost("http://localhost:11434")}
+                className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-mono text-[10px] transition-colors"
+              >
+                http://localhost:11434
+              </button>
+            </div>
           </div>
 
           <div>

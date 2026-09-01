@@ -223,25 +223,21 @@ MANDATORY DIRECTIVES:
 1. You MUST read the entire provided document text thoroughly and completely from start to finish.
 2. DO NOT make up things, fabricate, assume, or hallucinate entities or relationships.
 3. Be strictly precise. Only extract real-world entities directly substantiated by explicit factual evidence in the text.
-4. CRITICAL: DO NOT treat the document or report itself as an entity. NEVER output "Report", "Document", "File", "Incident Report", or the document title as an entity. Extract only granular, real-world named entities: individual people (e.g., "David", "Lawrence Cooper"), specific addresses/locations (e.g., "239 Carol Avenue"), specific incidents (e.g., "Theft Incident"), stolen items/assets, organizations, etc.
+4. CRITICAL: DO NOT treat the document or report itself as an entity. NEVER output "Report", "Document", "File", "Incident Report", or the document title as an entity. Extract only granular, real-world named entities: individual people (e.g., "David", "Lawrence Cooper"), specific addresses/locations (e.g., "Spangsbjerg Møllevej 14A", "239 Carol Avenue"), specific incidents (e.g., "Theft Incident"), stolen items/assets, organizations, etc.
 5. Automatically assign sequential positive integer IDs starting from 1 (1, 2, 3...) for all entities and links.
 6. Map entity types to the integer entityTypeId:
-   1: House, 2: Company, 3: Female, 4: Event, 5: Gang, 6: Location, 7: Person, 8: Phone, 9: Passport, 10: Address,
-   11: Bank Account, 12: Bank, 13: Building, 14: Car, 15: City, 16: Country, 17: Convicted Person (Currently), 18: Convicted Person (Previously), 19: Corporate Business Organization, 20: Credit Card,
-   21: Criminal Case, 22: Document, 23: Chemistry, 24: Narcotics, 25: Drug Lab, 26: Email, 27: Work email, 28: Events, 29: Flight, 30: Gun,
-   31: House, 32: IP Address, 33: Male, 34: Association, 35: Meeting, 36: Modus Operandi, 37: Money Transfer, 38: Money Laundering, 39: Motorcycle, 40: NGO,
-   41: Organized Crime Group, 42: Passport, 43: Phone, 44: Plane, 45: Region, 46: Ship, 47: Town, 48: Train, 49: Twitter Hashtag, 50: Twitter Username,
-   51: Village, 52: Location Pin, 53: Finance
+   1: house, 2: company, 3: female, 4: event, 5: gang, 6: streetname, 7: person, 8: phone, 9: passport, 10: address,
+   11: bank_account, 12: bank, 13: building, 14: car, 15: city, 16: country, 17: convicted_person_current, 18: convicted_person_prev, 19: corporate_business, 20: credit_card,
+   21: criminal_case, 22: document, 23: chemistry, 24: narcotics, 25: drug_lab, 26: email, 27: work_email, 28: events, 29: flight, 30: gun,
+   31: house, 32: ip_address, 33: male, 34: association, 35: meeting, 36: modus_operandi, 37: money_transfer, 38: money_laundering, 39: motorcycle, 40: ngo,
+   41: organized_crime_group, 42: passport, 43: phone, 44: plane, 45: region, 46: ship, 47: town, 48: train, 49: twitter_hashtag, 50: twitter_username,
+   51: village, 52: location_pin, 53: finance
 7. Map link types to the integer linkTypeId:
-   1: Parent-Child, 2: Sibling, 3: Spouse/partner, 4: Grandparent-grandchild, 5: Friend, 6: Colleague, 7: Boss-employee, 8: Coach-player, 9: Doctor-patient, 10: Business partners,
-   11: Roommates, 12: In-laws, 13: Employer-contractor, 14: Drug supplier, 15: Informant, 16: Accomplice, 17: Witness, 18: Victim, 19: Suspect, 20: Co-defendant,
-   21: Attorney-client, 22: Guardian-ward, 23: Bail bondsman-client, 24: Probation officer-client, 25: Foster parent-child, 26: Caretaker-dependent, 27: Landlord-tenant, 28: Step-parent, 29: Step-sibling, 30: Step-child,
-   31: Co-conspirator, 32: Ex-spouse, 33: Mentor-mentee, 34: Therapist-client, 35: Protected source, 36: Handler-asset, 37: Political ally, 38: Political opponent, 39: Undercover agent, 40: Surveillance target,
-   41: Emergency contact, 42: Neighbor, 43: Former colleague, 44: Former boss, 45: Former employee, 46: Rival gang member, 47: Co-defendant's family, 48: Key witness, 49: Confidential informant, 50: Legal guardian,
-   51: Adoptive parent, 52: Adoptive child, 53: Foster sibling, 54: Ex-roommate, 55: Beneficiary, 56: Trustee, 57: Power of attorney, 58: Executor of estate, 59: Parole officer, 60: Community service supervisor,
-   61: Military superior, 62: Military subordinate, 63: Gang leader, 64: Gang recruit, 65: Union representative, 66: Union member, 67: Arbitrator, 68: Mediator, 69: Crisis negotiator, 70: Hostage,
-   71: Kidnapper, 72: Smuggler, 73: Human trafficker, 74: Organized crime member, 75: Counterfeit goods dealer, 76: Illegal arms dealer, 77: Intellectual property thief, 78: Cybercriminal, 79: Hacker, 80: Identity thief,
-   81: Counter-surveillance operator, 82: Escape driver, 83: Money launderer
+   1: address, 2: employee, 3: family, 4: friend, 5: colleague, 6: boss-employee, 7: business-partner, 8: spouse-partner, 9: parent-child, 10: sibling,
+   11: roommates, 12: in-laws, 13: employer-contractor, 14: drug-supplier, 15: informant, 16: accomplice, 17: witness, 18: victim, 19: suspect, 20: co-defendant,
+   21: attorney-client, 22: guardian-ward, 23: bail-bondsman-client, 24: probation-officer-client, 25: foster-parent-child, 26: caretaker-dependent, 27: landlord-tenant, 28: step-parent, 29: step-sibling, 30: step-child,
+   31: co-conspirator, 32: ex-spouse, 33: mentor-mentee, 34: therapist-client, 35: protected-source, 36: handler-asset, 37: political-ally, 38: political-opponent, 39: undercover-agent, 40: surveillance-target,
+   41: emergency-contact, 42: neighbor, 43: former-colleague, 44: former-boss, 45: former-employee, 46: rival-gang-member, 47: co-defendants-family, 48: key-witness, 49: confidential-informant, 50: legal-guardian
 8. Each link must have:
    - "id": sequential integer (1, 2, 3...)
    - "entityId1": integer referencing entities[].id
@@ -251,9 +247,9 @@ MANDATORY DIRECTIVES:
    - "source": string citation or document name indicating where in the document this connection is verified.
 
 9. At the end of the JSON object, directly after links, include:
-   - "entityTypes": list of entity types referenced in this case starting with {"id": -1, "name": "semantic_group"} followed by the entity types present in the entities array (e.g. {"id": 7, "name": "person"}, {"id": 10, "name": "address"}, {"id": 2, "name": "company"})
-   - "linkTypes": list of link types referenced in this case starting with {"id": -1, "name": "semantic_link"} followed by the link types present in the links array (e.g. {"id": 1, "name": "parent-child"}, {"id": 27, "name": "landlord-tenant"})
-   - "attributes": array of granular attributes extracted for the entities in the case:
+   - "entityTypes": list of entity types referenced in this case starting with {"id": -1, "name": "semantic_group"} followed by the entity types present in the entities array (e.g. {"id": 7, "name": "person"}, {"id": 6, "name": "streetname"}, {"id": 2, "name": "company"})
+   - "linkTypes": list of link types referenced in this case starting with {"id": -1, "name": "semantic_link"} followed by the link types present in the links array (e.g. {"id": 1, "name": "address"}, {"id": 2, "name": "employee"}, {"id": 3, "name": "family"})
+   - "attributes": array of granular attributes extracted for the entities in the case (optional):
      {
        "id": integer sequential,
        "entityId": integer referencing entities[].id,
@@ -278,30 +274,30 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
     },
     {
       "id": 3,
-      "name": "239 Carol Avenue",
-      "entityTypeId": 10
+      "name": "Spangsbjerg Møllevej 14A",
+      "entityTypeId": 6
     },
     {
       "id": 4,
-      "name": "Theft Incident",
-      "entityTypeId": 4
+      "name": "Acme Logistics Corp",
+      "entityTypeId": 2
     }
   ],
   "links": [
     {
       "id": 1,
-      "entityId1": 2,
+      "entityId1": 1,
       "linkTypeId": 1,
-      "entityId2": 1,
+      "entityId2": 3,
       "strength": 0.95,
       "source": "${documentName}"
     },
     {
       "id": 2,
-      "entityId1": 1,
-      "linkTypeId": 27,
-      "entityId2": 3,
-      "strength": 0.95,
+      "entityId1": 2,
+      "linkTypeId": 2,
+      "entityId2": 4,
+      "strength": 0.90,
       "source": "${documentName}"
     }
   ],
@@ -315,12 +311,12 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
       "name": "person"
     },
     {
-      "id": 10,
-      "name": "address"
+      "id": 6,
+      "name": "streetname"
     },
     {
-      "id": 4,
-      "name": "event"
+      "id": 2,
+      "name": "company"
     }
   ],
   "linkTypes": [
@@ -330,11 +326,15 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
     },
     {
       "id": 1,
-      "name": "parent-child"
+      "name": "address"
     },
     {
-      "id": 27,
-      "name": "landlord-tenant"
+      "id": 2,
+      "name": "employee"
+    },
+    {
+      "id": 3,
+      "name": "family"
     }
   ],
   "attributes": [
@@ -342,7 +342,7 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
       "id": 7,
       "entityId": 1,
       "name": "Address",
-      "value": "239 Carol Avenue",
+      "value": "Spangsbjerg Møllevej 14A",
       "author": "AdamLorincz",
       "date": "2023-06-23T14:59:55.12"
     },
@@ -358,7 +358,7 @@ OUTPUT STRICTLY VALID JSON MATCHING THIS EXACT SCHEMA:
       "id": 9,
       "entityId": 2,
       "name": "Address",
-      "value": "239 Carol Avenue",
+      "value": "Spangsbjerg Møllevej 8F",
       "author": "AdamLorincz",
       "date": "2023-06-23T15:01:14.971"
     },

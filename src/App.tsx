@@ -653,9 +653,26 @@ export default function App() {
                   type="text"
                   value={ollamaHost}
                   onChange={(e) => setOllamaHost(e.target.value)}
-                  placeholder="http://localhost:11434"
+                  placeholder="http://localhost:4000"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500"
                 />
+                <div className="flex items-center space-x-1.5 mt-1 text-[10px] text-slate-400">
+                  <span>Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setOllamaHost("http://localhost:4000")}
+                    className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded font-mono transition-colors"
+                  >
+                    :4000
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOllamaHost("http://localhost:11434")}
+                    className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-mono transition-colors"
+                  >
+                    :11434
+                  </button>
+                </div>
               </div>
 
               <div>

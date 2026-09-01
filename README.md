@@ -68,7 +68,7 @@ Before running the application locally, you will need:
    ```
 4. Open your browser and navigate to:
    ```
-   http://localhost:3000
+   http://localhost:4000
    ```
 
 ---
@@ -98,7 +98,7 @@ Before running the application locally, you will need:
 
 ```bash
 npm install      # Install dependencies
-npm run dev      # Start development server on http://localhost:3000
+npm run dev      # Start development server on http://localhost:4000
 npm run build    # Build for production
 npm start        # Run production build
 ```
