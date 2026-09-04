@@ -73,7 +73,7 @@ app.post("/api/ollama/check", async (req, res) => {
 
 // 3. Proxy Generate Call to Ollama Host
 app.post("/api/ollama/generate", async (req, res) => {
-  const { host = "http://localhost:11434", model = "llama3.2", prompt, system, options } = req.body;
+  const { host = "http://localhost:11434", model = "qwen3:8b", prompt, system, options } = req.body;
   const targetUrl = host.replace(/\/$/, "");
 
   try {
@@ -522,7 +522,7 @@ Read the entire document thoroughly without making up any details. Extract all e
 // 5. Code Generator Endpoint for Python + Ollama App
 app.post("/api/python/generate-code", (req, res) => {
   const {
-    model = "llama3.2",
+    model = "qwen3:8b",
     host = "http://localhost:11434",
     framework = "streamlit",
     loader = "pypdf",
@@ -556,7 +556,7 @@ with st.sidebar:
     ollama_host = st.text_input("Ollama Host URL", value="${host}")
     selected_model = st.selectbox(
         "Select Local Model",
-        ["${model}", "llama3.2", "llama3.1", "mistral", "gemma2", "phi3", "qwen2.5", "deepseek-r1"],
+        ["${model}", "qwen3:8b", "qwen2.5", "llama3.1", "llama3.2", "mistral", "gemma2", "phi3", "deepseek-r1"],
         index=0
     )
     
@@ -882,7 +882,7 @@ A complete Python application to read documents (PDF, Word DOCX, TXT, Markdown) 
    \`\`\`bash
    ollama pull ${model}
    # Or try other great models:
-   # ollama pull llama3.2
+   # ollama pull qwen3:8b
    # ollama pull mistral
    # ollama pull deepseek-r1
    \`\`\`

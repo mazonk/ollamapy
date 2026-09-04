@@ -74,7 +74,7 @@ export default function App() {
   // Ollama configuration & status
   const [ollamaOnline, setOllamaOnline] = useState<boolean | null>(null);
   const [ollamaHost, setOllamaHost] = useState<string>("http://localhost:11434");
-  const [ollamaModel, setOllamaModel] = useState<string>("llama3.2");
+  const [ollamaModel, setOllamaModel] = useState<string>("qwen3:8b");
   const [availableModels, setAvailableModels] = useState<OllamaModelInfo[]>([]);
   const [isCheckingOllama, setIsCheckingOllama] = useState<boolean>(false);
   const [showOllamaModal, setShowOllamaModal] = useState<boolean>(false);
@@ -631,9 +631,9 @@ export default function App() {
                 </div>
 
                 <div className="flex items-center justify-between bg-slate-900/90 px-2.5 py-1.5 rounded-lg border border-slate-800/80">
-                  <code className="text-cyan-300 text-[11px]">ollama run llama3.2</code>
+                  <code className="text-cyan-300 text-[11px]">ollama run qwen3:8b</code>
                   <button
-                    onClick={() => copyToClipboard("ollama run llama3.2", "run")}
+                    onClick={() => copyToClipboard("ollama run qwen3:8b", "run")}
                     className="text-[10px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
                   >
                     {copiedCmd === "run" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -696,7 +696,7 @@ export default function App() {
                     type="text"
                     value={ollamaModel}
                     onChange={(e) => setOllamaModel(e.target.value)}
-                    placeholder="llama3.2"
+                    placeholder="qwen3:8b"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
                   />
                 )}

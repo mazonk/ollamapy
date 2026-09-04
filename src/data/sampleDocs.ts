@@ -85,7 +85,7 @@ Destination: Port of Singapore
     text: `EXECUTIVE SUMMARY: ENTERPRISE AI & LOCAL LLM ADOPTION REPORT 2026
 
 1. Overview
-The enterprise technology landscape in 2026 is witnessing an unprecedented shift toward local and hybrid Large Language Model (LLM) deployments. Driven by stringent data privacy regulations, cost optimization, and reduced cloud latency, over 68% of Fortune 500 organizations have integrated edge or on-premise AI models like Ollama, Llama 3.2, Mistral, and DeepSeek into their core operations.
+The enterprise technology landscape in 2026 is witnessing an unprecedented shift toward local and hybrid Large Language Model (LLM) deployments. Driven by stringent data privacy regulations, cost optimization, and reduced cloud latency, over 68% of Fortune 500 organizations have integrated edge or on-premise AI models like Ollama, Qwen3 8B, Mistral, and DeepSeek into their core operations.
 
 2. Key Strategic Drivers
 - Data Sovereignty & Security: Organizations in financial services, healthcare, and defence cannot expose sensitive customer data, IP, or health records to third-party public API endpoints. Running models locally via Ollama ensures complete data air-gapping.
@@ -107,7 +107,7 @@ Effective local document summarization relies on a chunking and map-reduce archi
 5. Recommendations
 - Implement Ollama as the standardized local daemon across developer machines.
 - Use Python scripts utilizing Streamlit or LangChain to automate multi-file processing pipelines.
-- Standardize on open models: Llama 3.2 for general synthesis, DeepSeek R1 for reasoning, and Mistral 7B for fast technical analysis.`,
+- Standardize on open models: Qwen3 8B for general synthesis, DeepSeek R1 for reasoning, and Mistral 7B for fast technical analysis.`,
   },
   {
     id: "sample-2",
@@ -131,7 +131,7 @@ Build a privacy-first, local-first document processing pipeline capable of proce
 - **Deliverable 1.3**: Direct integration with Ollama REST API (\`http://localhost:11434\`) supporting streaming output.
 
 ### Sprint 3 & 4: Model Evaluation & Benchmarks
-- **Llama 3.2 3B / 8B**: Selected for default fast document summaries (average 42 tokens/sec on Apple M3 Pro).
+- **Qwen3 8B / 14B**: Selected for default fast document summaries (average 45 tokens/sec on Apple M3 Pro / Nvidia RTX).
 - **DeepSeek R1 Distill**: Selected for complex contract analysis and logic verification.
 - **Mistral 7B**: Selected for multi-language translation and markdown table structuring.
 

@@ -56,13 +56,14 @@ const LANGUAGES = [
 ];
 
 const OLLAMA_MODELS = [
-  { id: "llama3.2", label: "Llama 3.2 (3B)", desc: "Meta's lightweight fast model" },
+  { id: "qwen3:8b", label: "Qwen3 (8B)", desc: "Alibaba's advanced open-weight model (Recommended)" },
+  { id: "qwen2.5", label: "Qwen 2.5 (7B)", desc: "Alibaba's multilingual LLM" },
   { id: "llama3.1", label: "Llama 3.1 (8B)", desc: "High accuracy general synthesis" },
+  { id: "llama3.2", label: "Llama 3.2 (3B)", desc: "Meta's lightweight fast model" },
   { id: "mistral", label: "Mistral 7B", desc: "Fast technical & document parsing" },
   { id: "deepseek-r1", label: "DeepSeek R1", desc: "Advanced reasoning & logic" },
   { id: "gemma2", label: "Gemma 2 (9B)", desc: "Google's open model" },
   { id: "phi3", label: "Phi-3 (3.8B)", desc: "Microsoft's efficient small LLM" },
-  { id: "qwen2.5", label: "Qwen 2.5 (7B)", desc: "Alibaba's multilingual LLM" },
 ];
 
 export const SummaryConfigPanel: React.FC<SummaryConfigPanelProps> = ({

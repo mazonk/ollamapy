@@ -8,7 +8,7 @@ A privacy-first, minimal document summarization and Q&A application powered by l
 
 Before running the application locally, you will need:
 1. **Node.js** (v18 or higher) and **npm**
-2. **Ollama** (for running local AI models like `llama3.2`)
+2. **Ollama** (for running local AI models like `qwen3:8b` / `qwen3`)
 
 ---
 
@@ -39,14 +39,14 @@ Before running the application locally, you will need:
 3. **Start the Ollama App**:
    - Launch Ollama from your Start menu or Applications folder. An Ollama icon will appear in your system tray.
 
-4. **Pull the Llama 3.2 Model**:
+4. **Pull the Qwen3 8B Model**:
    - Open a **new** Command Prompt / Terminal window.
    > 📌 **Note**: You must restart/open a *new* CMD window after installing Ollama so the system recognizes the `ollama` command line PATH.
    - Run the following command:
      ```bash
-     ollama pull llama3.2
+     ollama pull qwen3:8b
      ```
-   - Wait for the download to complete (approx 2 GB).
+   - Wait for the download to complete.
 
 5. Verify Ollama is running locally:
    ```bash
@@ -76,7 +76,7 @@ Before running the application locally, you will need:
 ## 💡 How to Use
 
 1. **Upload Document**: Drag & drop or click to upload a PDF, Word DOCX, Vessel Manifest, Markdown, or TXT file.
-2. **Summarize Document**: Click the **Summarize Document** button to generate a structured summary using your local `llama3.2` model.
+2. **Summarize Document**: Click the **Summarize Document** button to generate a structured summary using your local `qwen3:8b` (Qwen3 8B) model.
 3. **Analyze Risk Profile**: Click **Analyze Risk Profile** to have the LLM automatically connect document text phrases (e.g., `"Cargo load: 34,500 kg"`) to defined formula variables (`cargo_load = 34500`), evaluate your CRUD risk rules (`cargo_load > 30000 -> +30% Risk`), and generate an actionable risk scorecard.
 4. **CRUD Risk Rules**: Click **CRUD Risk Rules** in the header to create, edit, or delete custom risk formulas and threshold conditions.
 5. **Ask Questions**: Type any question about the uploaded document in the input field below and press **Ask**.

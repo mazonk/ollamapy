@@ -24,7 +24,7 @@ export const PythonStudio: React.FC<PythonStudioProps> = ({
   defaultModel,
   defaultHost,
 }) => {
-  const [model, setModel] = useState(defaultModel || "llama3.2");
+  const [model, setModel] = useState(defaultModel || "qwen3:8b");
   const [host, setHost] = useState(defaultHost || "http://localhost:11434");
   const [project, setProject] = useState<PythonProject | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("app.py");
@@ -136,8 +136,10 @@ export const PythonStudio: React.FC<PythonStudioProps> = ({
               onChange={(e) => setModel(e.target.value)}
               className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
             >
-              <option value="llama3.2">Llama 3.2 (3B) - Fast Default</option>
+              <option value="qwen3:8b">Qwen3 (8B) - Default Recommended</option>
+              <option value="qwen2.5">Qwen 2.5 (7B) - Multilingual</option>
               <option value="llama3.1">Llama 3.1 (8B) - High Quality</option>
+              <option value="llama3.2">Llama 3.2 (3B) - Fast</option>
               <option value="mistral">Mistral (7B) - Technical & Markdown</option>
               <option value="deepseek-r1">DeepSeek R1 - Advanced Reasoning</option>
               <option value="gemma2">Gemma 2 (9B)</option>

@@ -22,7 +22,7 @@ import {
 export async function extractDocumentEntitiesAndLinks(
   doc: DocumentFile,
   ollamaHost: string = "http://localhost:11434",
-  ollamaModel: string = "llama3.2"
+  ollamaModel: string = "qwen3:8b"
 ): Promise<DocumentEntitiesExportJSON> {
   const prompt = `You are a precision AI Document Entity & Relationship Knowledge Extraction Engine.
 MANDATORY DIRECTIVES:
@@ -709,16 +709,16 @@ export function buildFactualSemanticExtraction(doc: DocumentFile): DocumentEntit
     addLink(vId, 10, insId, 0.92, doc.name); // Insured valuation
   }
   // 3. AI Report facts
-  else if (text.includes("Ollama") || text.includes("Enterprise AI") || text.includes("Llama 3.2")) {
+  else if (text.includes("Ollama") || text.includes("Enterprise AI") || text.includes("Qwen3 8B") || text.includes("Llama")) {
     const ollamaId = addEntity("Ollama Local LLM Daemon", 22); // Technology / Document
-    const llamaId = addEntity("Llama 3.2 Model", 22); // Document / Model
+    const qwenId = addEntity("Qwen3 8B Model", 22); // Document / Model
     const mistralId = addEntity("Mistral 7B Model", 22); // Model
     const deepseekId = addEntity("DeepSeek R1 Model", 22); // Model
     const f500Id = addEntity("Fortune 500 Enterprise Organizations", 19); // Corporate Business Organization
     const pythonId = addEntity("Streamlit & LangChain Automation", 22); // Software / Document
 
     addLink(f500Id, 10, ollamaId, 0.85, doc.name); // Business partners
-    addLink(ollamaId, 6, llamaId, 0.9, doc.name); // Serves Llama 3.2
+    addLink(ollamaId, 6, qwenId, 0.9, doc.name); // Serves Qwen3 8B
     addLink(ollamaId, 6, mistralId, 0.88, doc.name); // Serves Mistral
     addLink(ollamaId, 6, deepseekId, 0.86, doc.name); // Serves DeepSeek
     addLink(ollamaId, 6, pythonId, 0.8, doc.name); // Integrated via Python

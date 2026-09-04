@@ -44,7 +44,7 @@ export const OllamaSettings: React.FC<OllamaSettingsProps> = ({
 
   const COMMANDS = [
     { label: "Start Local Ollama Daemon", cmd: "ollama serve" },
-    { label: "Pull Llama 3.2 (3B - Fast)", cmd: "ollama pull llama3.2" },
+    { label: "Pull Qwen3 (8B - Recommended)", cmd: "ollama pull qwen3:8b" },
     { label: "Pull Mistral (7B - Technical)", cmd: "ollama pull mistral" },
     { label: "Pull DeepSeek R1 (Reasoning)", cmd: "ollama pull deepseek-r1" },
     { label: "List Local Installed Models", cmd: "ollama list" },
@@ -154,7 +154,10 @@ export const OllamaSettings: React.FC<OllamaSettingsProps> = ({
                 ))
               ) : (
                 <>
-                  <option value="llama3.2">llama3.2</option>
+                  <option value="qwen3:8b">qwen3:8b (Qwen3 8B)</option>
+                  <option value="qwen2.5">qwen2.5 (Qwen 2.5 7B)</option>
+                  <option value="llama3.1">llama3.1 (Llama 3.1 8B)</option>
+                  <option value="llama3.2">llama3.2 (Llama 3.2 3B)</option>
                   <option value="mistral">mistral</option>
                   <option value="deepseek-r1">deepseek-r1</option>
                   <option value="gemma2">gemma2</option>
